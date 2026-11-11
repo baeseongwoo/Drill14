@@ -1,5 +1,7 @@
 from pico2d import *
 
+import game_framework
+
 # bird_animation.png 분석 결과 (918 x 506, 투명 배경)
 # - 가로 5칸 x 세로 3줄, 마지막 줄은 4칸 -> 총 14 프레임
 # - 각 칸의 새 눈(파란 홍채) 중심 x 좌표가 정확히 182 픽셀 간격 -> 프레임 폭 182
@@ -16,6 +18,12 @@ PIXEL_PER_METER = (10.0 / 0.3)
 BIRD_SIZE_M = 1.5
 BIRD_DRAW_W = BIRD_SIZE_M * PIXEL_PER_METER          # 50 pixel
 BIRD_DRAW_H = BIRD_DRAW_W * FRAME_H / FRAME_W         # 원본 비율 유지 (약 46 pixel)
+
+# Bird Fly Speed : 대형 새의 순항 속도 약 35 km/h
+FLY_SPEED_KMPH = 35.0
+FLY_SPEED_MPM = (FLY_SPEED_KMPH * 1000.0 / 60.0)
+FLY_SPEED_MPS = (FLY_SPEED_MPM / 60.0)                # 약 9.72 m/s
+FLY_SPEED_PPS = (FLY_SPEED_MPS * PIXEL_PER_METER)     # 약 324 pixel/s
 
 
 def frame_rect(index):
@@ -35,11 +43,14 @@ class Bird:
     def __init__(self):
         if Bird.image is None:
             Bird.image = load_image('bird_animation.png')
-        self.x, self.y = 800, 400
+        self.x, self.y = 100, 400
         self.frame = 0
+        self.dir = 1  # 1: 오른쪽, -1: 왼쪽
 
     def update(self):
         self.frame = (self.frame + 1) % FRAMES_PER_ACTION
+        # 이동 거리 = 속도 x 프레임 시간 -> 컴퓨터 성능과 무관하게 같은 속도
+        self.x += self.dir * FLY_SPEED_PPS * game_framework.frame_time
 
     def draw(self):
         left, bottom = frame_rect(int(self.frame))
