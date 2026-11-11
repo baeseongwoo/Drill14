@@ -25,6 +25,14 @@ FLY_SPEED_MPM = (FLY_SPEED_KMPH * 1000.0 / 60.0)
 FLY_SPEED_MPS = (FLY_SPEED_MPM / 60.0)                # 약 9.72 m/s
 FLY_SPEED_PPS = (FLY_SPEED_MPS * PIXEL_PER_METER)     # 약 324 pixel/s
 
+# Bird Action Speed
+# 소년의 '보폭(STRIDE_LENGTH_M)'에 해당하는 값: 날갯짓 1회 동안 앞으로 나아가는 거리
+DISTANCE_PER_FLAP_M = 3.5
+# 1초에 날갯짓을 몇 번 하는가? (약 2.8회/초 -> 대형 새의 실제 날갯짓 빈도 2~3Hz 범위)
+FLAPS_PER_SECOND = FLY_SPEED_MPS / DISTANCE_PER_FLAP_M
+# 1초에 프레임을 몇 개 넘겨야 하는가? (약 38.9 프레임/초)
+FLY_FRAMES_PER_SECOND = FLAPS_PER_SECOND * FRAMES_PER_ACTION
+
 
 def frame_rect(index):
     """index 번째 프레임의 시트 내 (left, bottom) 좌표.
@@ -44,11 +52,11 @@ class Bird:
         if Bird.image is None:
             Bird.image = load_image('bird_animation.png')
         self.x, self.y = 100, 400
-        self.frame = 0
+        self.frame = 0.0  # 실수로 누적, 그릴 때 int() 로 변환
         self.dir = 1  # 1: 오른쪽, -1: 왼쪽
 
     def update(self):
-        self.frame = (self.frame + 1) % FRAMES_PER_ACTION
+        self.frame = (self.frame + FLY_FRAMES_PER_SECOND * game_framework.frame_time) % FRAMES_PER_ACTION
         # 이동 거리 = 속도 x 프레임 시간 -> 컴퓨터 성능과 무관하게 같은 속도
         self.x += self.dir * FLY_SPEED_PPS * game_framework.frame_time
 
