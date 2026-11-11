@@ -48,17 +48,22 @@ def frame_rect(index):
 class Bird:
     image = None
 
-    def __init__(self):
+    def __init__(self, x=100, y=400, speed_kmph=FLY_SPEED_KMPH, frame=0.0, dir=1):
         if Bird.image is None:
             Bird.image = load_image('bird_animation.png')
-        self.x, self.y = 100, 400
-        self.frame = 0.0  # 실수로 누적, 그릴 때 int() 로 변환
-        self.dir = 1  # 1: 오른쪽, -1: 왼쪽
+        self.x, self.y = x, y
+        self.frame = frame  # 실수로 누적, 그릴 때 int() 로 변환
+        self.dir = dir  # 1: 오른쪽, -1: 왼쪽
+
+        # 새마다 속도가 다를 수 있으므로, 같은 공식으로 개체별 값을 계산
+        speed_mps = speed_kmph * 1000.0 / 60.0 / 60.0
+        self.speed_pps = speed_mps * PIXEL_PER_METER
+        self.frames_per_second = speed_mps / DISTANCE_PER_FLAP_M * FRAMES_PER_ACTION
 
     def update(self):
-        self.frame = (self.frame + FLY_FRAMES_PER_SECOND * game_framework.frame_time) % FRAMES_PER_ACTION
+        self.frame = (self.frame + self.frames_per_second * game_framework.frame_time) % FRAMES_PER_ACTION
         # 이동 거리 = 속도 x 프레임 시간 -> 컴퓨터 성능과 무관하게 같은 속도
-        self.x += self.dir * FLY_SPEED_PPS * game_framework.frame_time
+        self.x += self.dir * self.speed_pps * game_framework.frame_time
 
         # 화면 끝에 닿으면 방향 전환 (몸 절반만큼 여유를 두어 화면 밖으로 나가지 않게)
         half_w = BIRD_DRAW_W / 2
