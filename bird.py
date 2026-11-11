@@ -6,6 +6,19 @@ from pico2d import *
 # - 세로는 506 / 3 = 약 168.7 픽셀 -> 프레임 높이 169
 SHEET_W, SHEET_H = 918, 506
 FRAME_W, FRAME_H = 182, 169
+COLS, ROWS = 5, 3
+FRAMES_PER_ACTION = 14  # 날갯짓 1회(위 -> 아래 -> 위)를 구성하는 프레임 수
+
+
+def frame_rect(index):
+    """index 번째 프레임의 시트 내 (left, bottom) 좌표.
+    시트는 왼쪽 위부터 오른쪽으로, 줄이 끝나면 다음 줄로 진행(행 우선).
+    pico2d 는 왼쪽 아래가 원점이므로 위에서부터 센 줄 번호를 뒤집어 계산한다."""
+    col = index % COLS
+    row = index // COLS  # 0: 맨 윗줄
+    left = col * FRAME_W
+    bottom = int(SHEET_H - (row + 1) * SHEET_H / ROWS)  # 337, 168, 0
+    return left, bottom
 
 
 class Bird:
@@ -15,10 +28,11 @@ class Bird:
         if Bird.image is None:
             Bird.image = load_image('bird_animation.png')
         self.x, self.y = 800, 400
+        self.frame = 0
 
     def update(self):
-        pass
+        self.frame = (self.frame + 1) % FRAMES_PER_ACTION
 
     def draw(self):
-        # 시트의 왼쪽 위 첫 번째 프레임 (pico2d 는 왼쪽 아래가 원점)
-        Bird.image.clip_draw(0, SHEET_H - FRAME_H, FRAME_W, FRAME_H, self.x, self.y)
+        left, bottom = frame_rect(int(self.frame))
+        Bird.image.clip_draw(left, bottom, FRAME_W, FRAME_H, self.x, self.y)
