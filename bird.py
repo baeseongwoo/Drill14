@@ -9,6 +9,14 @@ FRAME_W, FRAME_H = 182, 169
 COLS, ROWS = 5, 3
 FRAMES_PER_ACTION = 14  # 날갯짓 1회(위 -> 아래 -> 위)를 구성하는 프레임 수
 
+# 화면의 물리 단위 (LEC16 과 동일: 10 pixel = 30 cm)
+PIXEL_PER_METER = (10.0 / 0.3)
+
+# 새 크기: 날개를 편 옆모습 한 프레임이 실제로 1.5 m 정도인 대형 새(독수리급)로 가정
+BIRD_SIZE_M = 1.5
+BIRD_DRAW_W = BIRD_SIZE_M * PIXEL_PER_METER          # 50 pixel
+BIRD_DRAW_H = BIRD_DRAW_W * FRAME_H / FRAME_W         # 원본 비율 유지 (약 46 pixel)
+
 
 def frame_rect(index):
     """index 번째 프레임의 시트 내 (left, bottom) 좌표.
@@ -35,4 +43,5 @@ class Bird:
 
     def draw(self):
         left, bottom = frame_rect(int(self.frame))
-        Bird.image.clip_draw(left, bottom, FRAME_W, FRAME_H, self.x, self.y)
+        Bird.image.clip_draw(left, bottom, FRAME_W, FRAME_H, self.x, self.y,
+                             BIRD_DRAW_W, BIRD_DRAW_H)
