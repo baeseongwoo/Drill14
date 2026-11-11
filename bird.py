@@ -60,7 +60,20 @@ class Bird:
         # 이동 거리 = 속도 x 프레임 시간 -> 컴퓨터 성능과 무관하게 같은 속도
         self.x += self.dir * FLY_SPEED_PPS * game_framework.frame_time
 
+        # 화면 끝에 닿으면 방향 전환 (몸 절반만큼 여유를 두어 화면 밖으로 나가지 않게)
+        half_w = BIRD_DRAW_W / 2
+        if self.x > get_canvas_width() - half_w:
+            self.x = get_canvas_width() - half_w
+            self.dir = -1
+        elif self.x < half_w:
+            self.x = half_w
+            self.dir = 1
+
     def draw(self):
         left, bottom = frame_rect(int(self.frame))
-        Bird.image.clip_draw(left, bottom, FRAME_W, FRAME_H, self.x, self.y,
-                             BIRD_DRAW_W, BIRD_DRAW_H)
+        if self.dir == 1:  # 시트의 새는 오른쪽을 보고 있음
+            Bird.image.clip_draw(left, bottom, FRAME_W, FRAME_H, self.x, self.y,
+                                 BIRD_DRAW_W, BIRD_DRAW_H)
+        else:  # 왼쪽으로 날 때는 좌우 반전
+            Bird.image.clip_composite_draw(left, bottom, FRAME_W, FRAME_H, 0, 'h',
+                                           self.x, self.y, BIRD_DRAW_W, BIRD_DRAW_H)
