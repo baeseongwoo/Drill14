@@ -1,3 +1,14 @@
+"""새의 비행 애니메이션 (Drill #14)
+
+정확한 비행을 위한 논리 요약
+1) 시트: 182 x 169 프레임 14장, 행 우선 순서가 날갯짓 1회
+2) 크기: 10 pixel = 30 cm, 새 한 프레임 = 1.5 m -> 50 pixel
+3) 이동: km/h -> m/s -> pixel/s, x += dir * speed_pps * frame_time
+4) 날갯짓: 날갯짓 1회당 3.5 m 전진
+           -> 초당 날갯짓 = 속도(m/s) / 3.5, 초당 프레임 = 초당 날갯짓 x 14
+           frame += frames_per_second * frame_time
+5) 화면 끝에서 방향 전환, 왼쪽 비행은 좌우 반전
+"""
 from pico2d import *
 
 import game_framework
