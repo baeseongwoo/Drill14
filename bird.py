@@ -47,17 +47,23 @@ def frame_rect(index):
 
 class Bird:
     image = None
+    font = None
+    show_info = False  # D 키로 토글: 새마다 속도/날갯짓 빈도/현재 프레임 표시
 
     def __init__(self, x=100, y=400, speed_kmph=FLY_SPEED_KMPH, frame=0.0, dir=1):
         if Bird.image is None:
             Bird.image = load_image('bird_animation.png')
+        if Bird.font is None:
+            Bird.font = load_font('ENCR10B.TTF', 14)
         self.x, self.y = x, y
         self.frame = frame  # 실수로 누적, 그릴 때 int() 로 변환
         self.dir = dir  # 1: 오른쪽, -1: 왼쪽
 
         # 새마다 속도가 다를 수 있으므로, 같은 공식으로 개체별 값을 계산
         speed_mps = speed_kmph * 1000.0 / 60.0 / 60.0
+        self.speed_kmph = speed_kmph
         self.speed_pps = speed_mps * PIXEL_PER_METER
+        self.flaps_per_second = speed_mps / DISTANCE_PER_FLAP_M
         self.frames_per_second = speed_mps / DISTANCE_PER_FLAP_M * FRAMES_PER_ACTION
 
     def update(self):
@@ -82,3 +88,8 @@ class Bird:
         else:  # 왼쪽으로 날 때는 좌우 반전
             Bird.image.clip_composite_draw(left, bottom, FRAME_W, FRAME_H, 0, 'h',
                                            self.x, self.y, BIRD_DRAW_W, BIRD_DRAW_H)
+
+        if Bird.show_info:
+            Bird.font.draw(self.x - 40, self.y + 35,
+                           f'{self.speed_kmph:.1f}km/h {self.flaps_per_second:.2f}Hz #{int(self.frame)}',
+                           (255, 255, 0))

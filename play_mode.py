@@ -22,6 +22,8 @@ def handle_events():
             return
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_d:
+            Bird.show_info = not Bird.show_info
         else:
             boy.handle_event(event)
 
